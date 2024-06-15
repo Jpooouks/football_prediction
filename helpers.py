@@ -1,53 +1,30 @@
-import sqlite3
-from typing import Dict, List, Tuple
+import pandas as pd
+import numpy as np
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
-def get_database_keys(db_path: str) -> Dict[str, Dict[str, List[Tuple[str, str, int]]]]:
-    """
-    Retrieves the primary and foreign keys for all tables in a SQLite database.
+def find_outliers(df):
+    outlier_indices = []
+    for column in df.columns:
+        if df[column].dtype in ['int64', 'float64']:
+            Q1 = df[column].quantile(0.25)
+            Q3 = df[column].quantile(0.75)
+            IQR = Q3 - Q1
+            
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            
+            column_outliers = df[(df[column] < lower_bound) | (df[column] > upper_bound)].index
+            
+            outlier_indices.extend(column_outliers)
     
-    Parameters:
-    - db_path (str): The file path to the SQLite database.
-
-    Returns:
-    - Dict[str, Dict[str, List[Tuple[str, str, int]]]]: A dictionary where each key is a table name.
-      The value for each key is another dictionary with two keys: 'Primary Keys' and 'Foreign Keys'.
-      'Primary Keys' is a list of column names that are primary keys in the table.
-      'Foreign Keys' is a list of tuples, each containing the column name in the current table,
-      the referenced table name, and the foreign key index.
-
-    Example of return structure:
-    {
-        'TableName': {
-            'Primary Keys': ['id'],
-            'Foreign Keys': [('foreign_key_column', 'ReferencedTableName', 0)]
-        },
-        ...
-    }
-    """
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    unique_outlier_indices = list(set(outlier_indices))
     
-    cursor.execute("select name from sqlite_master where type='table';")
-    tables = cursor.fetchall()
-    
-    keys_info: Dict[str, Dict[str, List[Tuple[str, str, int]]]] = {}
+    return df.loc[unique_outlier_indices]
 
-    for table_name in tables:
-        table_name = table_name[0]
-        keys_info[table_name] = {'Primary Keys': [], 'Foreign Keys': []}
-        
-        cursor.execute(f"pragma table_info({table_name});")
-        columns = cursor.fetchall()
-        for column in columns:
-            if column[5]:
-                keys_info[table_name]['Primary Keys'].append(column[1])
-        
-        cursor.execute(f"pragma foreign_key_list({table_name});")
-        foreign_keys = cursor.fetchall()
-        for fk in foreign_keys:
-            keys_info[table_name]['Foreign Keys'].append((fk[3], fk[2], fk[0]))
 
-    conn.close()
-    
-    return keys_info
+def calc_vif(X):
+    vif = pd.DataFrame()
+    vif["variable"] = X.columns
+    vif["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    return vif
