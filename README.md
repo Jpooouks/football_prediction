@@ -1,4 +1,6 @@
 # Ultimate 25k+ Football Matches Football Project
+## Dashboard
+A looker dashboard was a part of this assignment. The link can be found [here](https://lookerstudio.google.com/reporting/98bcb39b-0eb3-4d2f-9cd9-755c9e4b8310)
 ## About the dataset
 This project deals with Ultimate 25k+ Football Matches Football dataset.\
 It contains:
@@ -13,7 +15,7 @@ It contains:
 The data was scraped from across various webpages on the internet.
 ## About this project
 In this project the ultimate goals are to model the **goals scored** and the **outcome of the game**.\
-**At first**, exploritory questions such as which leagues are in which countries, which leagues score the most/fewest goals, who are the top scorers in each team and league, is there such a thing as home advantage, will be raised and analysis will be conducted to answer them.\
+**At first**, exploratory questions such as which leagues are in which countries, which leagues score the most/fewest goals, who are the top scorers in each team and league, is there such a thing as home advantage, will be raised and analysis will be conducted to answer them.\
 **Second**, statistical inference will be conducted on hypotheses arising from the previous part.\
 **Lastly**, we will attempt to model the aformentioned targets.
 # Quickstart guide
